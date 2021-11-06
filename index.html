@@ -7,39 +7,109 @@
 <body>
   <div class="container">
     <div id="app">
+      <h1>WanderJaunt Employees chart</h1>
       <span v-text="message"></span>
+
+      <div v-for="employee in chart">
+        <ul>
+          <tree-item :item="employee" ></tree-item>
+        </ul>
+      </div>
     </div>    
   </div>
+
+  <script type="text/x-template" id="item-template">
+    <li>
+      <div>
+        {{ item.title }}: {{ item.name }}
+      </div>
+      <ul>
+        <tree-item
+          v-for="(child, index) in item.children"
+          :key="index"
+          :item="child"
+        ></tree-item>
+      </ul>
+    </li>
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"></script>
   <script type="text/javascript">
     /*
     REST API to return a json with the data:
-
-    [
+    */
+    var employees = [
         {"name": "Andres Green", "id": 4, "title": "COO", "manager_id": 2},
         {"name": "Barrett Glasauer", "id": 1, "title": "CTO", "manager_id": 2},
-        {"name": "Chris Hancock", "id": 8, "title": "Engineering Lead", "manager_id":  }
+        {"name": "Chris Hancock", "id": 8, "title": "Engineering Lead", "manager_id":  1},
         {"name": "Julian Early", "id": 3, "title": "Engineer", "manager_id": 8},
         {"name": "Michael Chen", "id": 2, "title": "CEO", "manager_id": null},
         {"name": "Shrutika Dasgupta", "id": 22, "title": "Engineer", "manager_id": 8},
         {"name": "Ryan Miller", "id": 30, "title": "Operations Lead", "manager_id": 4},
     ]
-    */
+
     const url = "https://employee.free.beeceptor.com/employees";
 
+    /*A component to draw the item in the tree*/
+    Vue.component("tree-item", {
+      template: "#item-template",
+      props: {
+        item: Object
+      },
+    });
 
     var app = new Vue({
       el: '#app',
       data: {
-        message: 'Loading...'
+        message: 'Downloading data...',
+        employees: [],
+        chart: [],
+      },
+      methods: {
+        create_tree: function() {
+
+          /*Defining the children prop in a hast table*/
+          let hash_table = Object.create(null);
+
+          for (idx in this.employees){
+            this.employees[idx]['children'] = [];
+            hash_table[this.employees[idx].id] = this.employees[idx];
+          }
+
+          /*Building a tree array*/
+          let tree = [];
+          this.employees.forEach( employee => {
+            if(employee.manager_id) {
+              let parent = hash_table[employee.manager_id];
+              parent.children.push(hash_table[employee.id]);
+            }
+            else{
+              tree.push(hash_table[employee.id])
+            }
+          });
+
+          this.chart = tree;
+        }
       },
       mounted () {
+        /*Get the data from an API, if it fails, use the local data*/
         axios
           .get(url)
-          .then(response => {
-            this.message = response.data
+          .catch(function (error) {
+            this.employees = employees;
           })
+          .then(response => {
+            if (response){
+              this.employees = response.data;
+            }else{
+              console.log("API is not responding");
+              this.employees = employees;
+            }
+
+            this.message = 'Building chart...';
+            this.create_tree();
+            this.message = '';
+          });
       }
     });
   </script>
