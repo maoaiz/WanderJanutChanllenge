@@ -73,15 +73,29 @@
 
           for (idx in this.employees){
             this.employees[idx]['children'] = [];
-            hash_table[this.employees[idx].id] = this.employees[idx];
+
+            let data = this.employees[idx];
+
+            /*Split full name into first and last name*/
+            let full_name = data['name'].split(" ");
+            data['first_name'] = full_name.splice(0, full_name.length - 1).join(' ');
+            data['last_name'] = full_name[full_name.length - 1];
+
+            /*hash_table contains the new data structure*/
+            hash_table[this.employees[idx].id] = data;
           }
 
           /*Building a tree array*/
           let tree = [];
           this.employees.forEach( employee => {
+
             if(employee.manager_id) {
               let parent = hash_table[employee.manager_id];
               parent.children.push(hash_table[employee.id]);
+
+              // Sort children by last_name
+              if (parent.children.length > 1)
+                parent.children.sort((a, b) => (a.last_name > b.last_name) ? 1 : -1);
             }
             else{
               tree.push(hash_table[employee.id])
