@@ -72,4 +72,6 @@ The backend team will implement the next endpoints:
 
 
 
-Mauricio Aizaga | Lead Product engineer
+Mauricio Aizaga
+
+**Lead Product engineer**
