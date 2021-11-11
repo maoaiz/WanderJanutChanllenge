@@ -2,7 +2,7 @@
 # Custom fields project
 
 ## Summary
-This project will allow managers to generate dynamic forms for the different teams on the ground. It is a responsive web platform that stores the forms templates and the data uploaded with those forms.
+This project will allow managers to generate dynamic forms for the different teams on the ground. The project is a web platform that stores the forms and the data uploaded with those forms.
 
 ## Scope
 We will have different sections to different user types:
@@ -13,6 +13,7 @@ We will have different sections to different user types:
 
 ## Modeling
 Our data model is described with the next figure:
+
 ![Database model](imgs/db.png "Database model")
 
 We have a User resource allowed to create Forms and Questions, a FieldType resource to define the type of input that should be used for each Question and an Answer resource to store all anwers provided every time that a form is used.
